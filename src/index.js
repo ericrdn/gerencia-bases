@@ -5,7 +5,7 @@ const config = {
     password: process.env.SA_PASSWORD || 'Master@Key',
     server: 'localhost',
     database: 'master',
-    requestTimeout : 6000000
+    requestTimeout: 6000000
 }
 
 const sql = require("mssql");
@@ -40,8 +40,10 @@ app.use(morgan('dev'));
 //start app 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () =>
-    console.log(`App is listening on port ${port}.`)
+app.listen(port, () => {
+    console.log(`App is listening on port ${port}.`);
+    console.log(`Senha DB : ${config.password}.`);
+}
 );
 
 const FolderBackUps = "/data/";
@@ -56,11 +58,11 @@ app.get('/list-files', async (req, res) => {
 
 function ExecutarProcedure(nomeprocedure, params) {
     return new Promise((res, error) => {
-        const parametros = Object.entries(params).map(m => ({Parametro: m[0], Valor: m[1]}));
+        const parametros = Object.entries(params).map(m => ({ Parametro: m[0], Valor: m[1] }));
 
         sql.connect(config).then(pool => {
             var req = pool.request();
-            parametros.forEach(i => req.input(i.Parametro, sql.VarChar(50), i.Valor) );
+            parametros.forEach(i => req.input(i.Parametro, sql.VarChar(50), i.Valor));
             return req.execute(nomeprocedure);
 
         }).then(result => {
@@ -68,27 +70,25 @@ function ExecutarProcedure(nomeprocedure, params) {
         }).then(() => {
             return sql.close()
         }).catch(err => error(err));
-        
+
     });
 }
 
-app.post('/restore-database',  async (req, res) => {
+app.post('/restore-database', async (req, res) => {
     try {
         const { Caminho, NameDataBase } = req.body;
 
         const extension = path.extname(Caminho);
         let backups_subir = [];
 
-        if (extension === ".7z")
-        {
+        if (extension === ".7z") {
             const temp_folder = GenerateDirTemp();
             const { stdout, stderr } = await exec(`7z e ${Caminho} -o${temp_folder}`);
             const arquivos = glob.sync(temp_folder + '/**/*');
 
             backups_subir = arquivos;
         }
-        else
-        {
+        else {
             backups_subir.push(Caminho);
         }
 
@@ -98,8 +98,7 @@ app.post('/restore-database',  async (req, res) => {
         res.send({});
 
     }
-    catch (err)
-    {
+    catch (err) {
         console.log("Err", err);
         res.status(500).send(err)
     }
@@ -108,23 +107,23 @@ app.post('/restore-database',  async (req, res) => {
 app.post('/backup-database', async (req, res) => {
     try {
         const { NameDataBase } = req.body;
-        
+
         const uuid_folder = GenerateDirTemp();
 
         console.log(uuid_folder);
 
-        fs.mkdirSync(uuid_folder, { recursive: true});
-        
+        fs.mkdirSync(uuid_folder, { recursive: true });
+
         const uuid_bak = path.join(uuid_folder, `${NameDataBase}.bak`);
         const uuid_zip = path.join(uuid_folder, `${NameDataBase}.7z`);
 
         const resultado = await ExecutarProcedure('BACKUP_BASE', { NOMEBASE: NameDataBase, CAMINHO: uuid_bak });
-        
-        const { stdout, stderr } = await exec(`7z a ${uuid_zip} ${uuid_bak}`);
-        
-        const target = path.join(FolderBackUps, moment().format("YYYYMMDD") );
 
-        fs.mkdirSync(target, { recursive: true});
+        const { stdout, stderr } = await exec(`7z a ${uuid_zip} ${uuid_bak}`);
+
+        const target = path.join(FolderBackUps, moment().format("YYYYMMDD"));
+
+        fs.mkdirSync(target, { recursive: true });
 
         fs.copyFileSync(uuid_zip, path.join(target, `${NameDataBase}.7z`));
 
@@ -132,8 +131,7 @@ app.post('/backup-database', async (req, res) => {
 
         res.json(target);
     }
-    catch (err)
-    {
+    catch (err) {
         console.log("Err", err);
         res.status(500).send(err)
     }
