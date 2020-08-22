@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +15,12 @@
     "express": "^4.17.1",
     "express-fileupload": "^1.2.0",
     "lodash": "^4.17.20",
-    "morgan": "^1.10.0"
+    "moment": "^2.27.0",
+    "morgan": "^1.10.0",
+    "mssql": "^6.2.1",
+    "node-7z": "^2.1.1",
+    "nodemon": "^2.0.4",
+    "rimraf": "^3.0.2",
+    "uuid": "^8.3.0"
   }
 }
