@@ -23,6 +23,7 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const fs = require('fs');
 const glob = require('glob');
+const { isArray } = require("lodash");
 const app = express();
 
 
@@ -38,7 +39,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 //start app 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3010;
 
 app.listen(port, () => {
     console.log(`App is listening on port ${port}.`);
@@ -149,6 +150,9 @@ app.post('/upload-base', async (req, res) => {
         } else {
 
             let data = [];
+
+            if (!isArray(req.files.bases))
+                req.files.bases = [req.files.bases];
 
             _.forEach(_.keysIn(req.files.bases), (key) => {
                 let base = req.files.bases[key];
