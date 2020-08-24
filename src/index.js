@@ -38,8 +38,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
+const DebugPort = 3010;
+
 //start app 
-const port = process.env.PORT || 3010;
+const port = process.env.SA_PASSWORD ? 3000 : DebugPort;
 
 app.listen(port, () => {
     console.log(`App is listening on port ${port}.`);
